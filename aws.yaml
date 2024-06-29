@@ -1,0 +1,54 @@
+Parameters:
+  BucketNameOmg:
+    Type: String
+    Default: sowcow-pi-air
+    Description: CHANGE ME
+
+  BucketUserName:
+    Type: String
+    Default: pi-air-user
+    Description: IAM user name that has access codes stored in Pi
+
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BucketNameOmg
+
+  MyIAMUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: !Ref BucketUserName
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:ListBucket'
+                Resource: !Sub 'arn:aws:s3:::${MyS3Bucket}'
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  #- 's3:DeleteObject'
+                Resource: !Sub 'arn:aws:s3:::${MyS3Bucket}/*'
+
+  MyIAMAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref MyIAMUser
+
+Outputs:
+  BucketName:
+    Description: 'Name of the S3 bucket'
+    Value: !Ref MyS3Bucket
+  AccessKeyId:
+    Description: 'Access key ID for the IAM user'
+    Value: !Ref MyIAMAccessKey
+  SecretAccessKey:
+    Description: 'Secret access key for the IAM user'
+    Value: !GetAtt MyIAMAccessKey.SecretAccessKey
+

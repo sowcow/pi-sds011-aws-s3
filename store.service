@@ -1,0 +1,13 @@
+[Unit]
+Description=Store air data
+
+[Service]
+ExecStart=/bin/bash -c '/home/pi/do_store_data.sh'
+Restart=always
+RestartSec=5
+Environment="BUCKET_NAME=GENERATED"
+Environment="AWS_ACCESS_KEY_ID=GENERATED"
+Environment="AWS_SECRET_ACCESS_KEY=GENERATED"
+
+[Install]
+WantedBy=multi-user.target

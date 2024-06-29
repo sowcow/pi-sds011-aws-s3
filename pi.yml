@@ -1,0 +1,117 @@
+---
+#
+# note: .ini file holds IP of Pi to ssh and configure
+#
+- name: Pi all things
+  hosts: my_devices
+  tasks:
+    #
+    # sensor part
+    #
+    - name: Git
+      apt:
+        name: git
+        state: present
+      become: yes
+
+    - name: Code
+      git:
+        repo: 'https://github.com/paulvha/sds011'
+        dest: /home/pi/sensor
+    
+    - name: Build
+      make:
+        chdir: /home/pi/sensor/src
+      become: yes
+
+    #
+    # recorder part
+    #
+    - name: 
+      copy:
+        src: ./record_data.sh
+        dest: /home/pi/
+        mode: '0755'
+
+    - name: Data dir
+      file:
+        path: "/home/pi/air_data"
+        state: directory
+        mode: '0755'
+        owner: pi
+        group: pi
+
+    - name: Record Service file
+      template:
+        src: air.service
+        dest: /etc/systemd/system/air.service
+        mode: '0644'
+      become: yes
+
+    - name: (ignore)
+      command: systemctl daemon-reload
+      become: yes
+
+    - name: Record Service enable
+      systemd:
+        name: air
+        enabled: yes
+      become: yes
+
+    - name: (ignore)
+      systemd:
+        name: air
+        state: stopped
+      become: yes
+      ignore_errors: true
+
+    - name: Record Service start
+      systemd:
+        name: air
+        state: started
+      become: yes
+
+    #
+    # storing part
+    #
+    - name: 
+      copy:
+        src: ./do_store_data.sh
+        dest: /home/pi/
+        mode: '0755'
+
+    - name: AWS cli
+      apt:
+        name: awscli
+        state: present
+      become: yes
+
+    - name: Store Service file
+      template:
+        src: store.service
+        dest: /etc/systemd/system/store.service
+        mode: '0644'
+      become: yes
+
+    - name: (ignore)
+      command: systemctl daemon-reload
+      become: yes
+
+    - name: Store Service enable
+      systemd:
+        name: store
+        enabled: yes
+      become: yes
+
+    - name: (ignore)
+      systemd:
+        name: store
+        state: stopped
+      become: yes
+      ignore_errors: true
+
+    - name: Store Service start
+      systemd:
+        name: store
+        state: started
+      become: yes

@@ -1,0 +1,10 @@
+[Unit]
+Description=Air
+
+[Service]
+ExecStart=/bin/bash -c '/home/pi/record_data.sh'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
