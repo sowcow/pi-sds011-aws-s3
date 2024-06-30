@@ -1,3 +1,5 @@
+> NOTE: incremental writes seem to be good at killing SD-cards so it looks like storage mechanism needs a rethink
+
 # What
 
 - Given Raspbery Pi with SDS011 sensor
