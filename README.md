@@ -12,6 +12,7 @@ Prerequisites are at the start of each usage step below.
 
 - requires aws account
 - requires aws cli being installed and configured for access (needs default region to place bucket in it I assume)
+- requires ruby language installed to run `rake` commands locally
 - change value (Default: ...) of bucket name at the top of `aws.yaml`
 - run `rake aws` (it stores secrets in a json file and `store.service`)
 

@@ -2,7 +2,7 @@ Parameters:
   BucketNameOmg:
     Type: String
     Default: sowcow-pi-air
-    Description: CHANGE ME
+    Description: CHANGE ABOVE VALUE TO SOMETHING GLOBALLY UNIQUE IN AWS
 
   BucketUserName:
     Type: String
