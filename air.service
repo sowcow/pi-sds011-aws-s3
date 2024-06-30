@@ -2,7 +2,7 @@
 Description=Air
 
 [Service]
-ExecStart=/bin/bash -c '/home/pi/record_data.sh'
+ExecStart=/bin/ruby '/home/pi/do_record_data.rb'
 Restart=always
 RestartSec=5
 

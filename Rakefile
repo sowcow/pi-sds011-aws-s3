@@ -23,13 +23,16 @@ task :aws do
   unless stack_exist?
     sh %'aws cloudformation create-stack #$target --template-body file://aws.yaml --capabilities CAPABILITY_NAMED_IAM'
     wait 'create'
-    sh %'aws cloudformation describe-stacks #$target --query "Stacks[0].Outputs" --output json > secret.json'
-
-    array = JSON.parse File.read 'secret.json'
-    raise 'something went wrong, probably need to delete stack' unless array
-    hash = Hash[array.map { |h| [h['OutputKey'].underscore.upcase, h['OutputValue']] }]
-    File.write 'secret.json', JSON.pretty_generate(hash)
   end
+  Rake::Task["secrets"].invoke
+end
+
+task :secrets do
+  sh %'aws cloudformation describe-stacks #$target --query "Stacks[0].Outputs" --output json > secret.json'
+  array = JSON.parse File.read 'secret.json'
+  raise 'something went wrong, probably need to delete stack' unless array
+  hash = Hash[array.map { |h| [h['OutputKey'].underscore.upcase, h['OutputValue']] }]
+  File.write 'secret.json', JSON.pretty_generate(hash)
 
   g = Generate.new JSON.parse File.read 'secret.json'
   File.write 'store.service', g.generate(File.read 'store.service')
@@ -37,7 +40,7 @@ end
 
 desc 'remove temporary secrets locally'
 task :clean do
-  return unless File.exist? 'secret.json'
+  next unless File.exist? 'secret.json'
   g = Generate.new JSON.parse File.read 'secret.json'
   File.write 'store.service', g.degenerate(File.read 'store.service')
   File.unlink 'secret.json'

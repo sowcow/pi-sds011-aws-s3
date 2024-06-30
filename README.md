@@ -1,10 +1,9 @@
-> NOTE: incremental writes seem to be good at killing SD-cards so it looks like storage mechanism needs a rethink
-
 # What
 
 - Given Raspbery Pi with SDS011 sensor
 - Automatically configure it to record and synchronize measurements into own AWS S3
 - Then visualize charts (it is early stage, using raw local data and simplest R language script)
+- Running no-dependencies ruby script on Pi for buffering to not kill SD-cards and to not bother with bash
 
 Prerequisites are at the start of each usage step below.
 
@@ -36,6 +35,11 @@ Prerequisites are at the start of each usage step below.
 - `rake clean` - should remove stored secrets in files around
 - `rake drop` - remove stack, but if data is already there - it needs manual removal
 
+If Pi SD card has died then to setup new one by using existing AWS stack:
+- `rake secrets`
+- `rake pi`
+- `rake clean`
+
 # Data format
 
 CSV contents order:
@@ -50,10 +54,10 @@ After doing `rake pull` it creates combined `local_data/all.csv` file, other fil
 
 # Parameters
 
-Check `record_data.sh` for hardcoded humidity and recording timing values (one recording every 5 seconds).
-`do_store_data.sh` has synchronization timing value (5 minutes max. "latency").
+Check `record_data.sh` for hardcoded humidity and recording timing/resolution values (one recording every 5 seconds).
+`do_store_data.sh` has synchronization timing value (under 2 hours max. "latency" given buffer of one file written every hour).
 
-That should produce ~7Mb of data per year with ~40Mb of outgoing traffic.
+That should produce ~7Mb of data per year with similar outgoing traffic.
 
 # Other notes
 
@@ -63,3 +67,4 @@ That should produce ~7Mb of data per year with ~40Mb of outgoing traffic.
 - Unexpectedly terraform ended-up being useless given chat-gpt can just generate cloudformation that doesn't have compatibility issues.
 - Not decided about UI yet (custom mini AWS app vs ready-made app if if is no-nonsense and is too powerful to ignore)
 - Not having python running on the Pi feels good
+- Initial version killed SD-card in less then 24 hours so I added some buffering and introducerd ruby
