@@ -9,6 +9,9 @@ $target = %'--stack-name air'
 # - rake aws (stores secrets)
 # - rake pi (secrets get copied into service)
 # - rake clean (deletes secrets locally, when/if everything works)
+# (after some data accumulated is S3)
+# - rake pull (pulls data locally and renders)
+# - rake render (makes png and pdf)
 
 desc 'pi configuration given aws'
 task :pi do
@@ -44,6 +47,22 @@ desc 'drop AWS resources, data may need to be manually deleted in S3'
 task :drop do
   sh %'aws cloudformation delete-stack #$target'
   wait 'delete'
+end
+
+task :pull do
+  str = `aws cloudformation describe-stacks #$target --query "Stacks[0].Outputs" --output json`
+  xs = JSON.load str
+  bucket_name = xs.find { |x| x['OutputKey'] == 'BucketName' }.fetch 'OutputValue'
+  sh %'aws s3 sync s3://#{bucket_name} ./local_data --size-only'
+
+  files = Dir['local_data/*.csv'].sort_by { |x| x.scan(/\d+/).map &:to_i }
+  text = ''
+  files.each { |f| text << File.read(f) }
+  File.write 'local_data/all.csv', text
+end
+
+task :render do
+  sh 'Rscript render.R'
 end
 
 # functions
