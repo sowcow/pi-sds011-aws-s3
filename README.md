@@ -59,4 +59,5 @@ That should produce ~7Mb of data per year with ~40Mb of outgoing traffic.
 - Anyway after playing around resolution may loose value if the driver/device can average things for me but I didn't dig.
 - I'm thinking to add humidity at some point, it should be used to correct the sensor (median?).
 - Unexpectedly terraform ended-up being useless given chat-gpt can just generate cloudformation that doesn't have compatibility issues.
-- Not decided about UI yet (custom mini AWS app vs ready-made app if if is no-nonsense and powerful)
+- Not decided about UI yet (custom mini AWS app vs ready-made app if if is no-nonsense and is too powerful to ignore)
+- Not having python running on the Pi feels good
