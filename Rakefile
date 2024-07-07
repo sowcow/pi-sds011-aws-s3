@@ -56,12 +56,12 @@ task :pull do
   str = `aws cloudformation describe-stacks #$target --query "Stacks[0].Outputs" --output json`
   xs = JSON.load str
   bucket_name = xs.find { |x| x['OutputKey'] == 'BucketName' }.fetch 'OutputValue'
-  sh %'aws s3 sync s3://#{bucket_name} ./local_data --size-only'
+  sh %'aws s3 sync s3://#{bucket_name} ./local_data'
 
   files = Dir['local_data/*.csv'].sort_by { |x| x.scan(/\d+/).map &:to_i }
-  text = ''
-  files.each { |f| text << File.read(f) }
-  File.write 'local_data/all.csv', text
+  omg = []
+  files.each { |f| omg.push File.read(f).lines.map(&:strip) }
+  File.write 'local_data/all.csv', omg.flatten.join(?\n)
 end
 
 task :render do
